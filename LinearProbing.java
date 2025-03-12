@@ -7,10 +7,23 @@
  */
 public class LinearProbing extends Hashtable{
 
+    private int hashFunc1;
+
+    public LinearProbing(int tablesize, double loadFactor) {
+        super(tablesize, loadFactor);
+    }
+
+    /**
+     * 
+     * @param objKey
+     * @return
+     */
+    private int hashFunc1(Object objKey) {
+        return positiveMod (objKey.hashCode(), tablesize);
+    }
+
     @Override
-    public void insert() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'insert'");
+    public void insert(Object newKey) {
     }
 
     @Override

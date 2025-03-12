@@ -8,10 +8,24 @@
  */
 public class DoubleHashing extends Hashtable{
 
+    private int hashFunc1;
+    private int hashFunc2;
+
+    public DoubleHashing(int tablesize, double loadFactor) {
+        super(tablesize, loadFactor);
+    }
+
+    private int hashFunc1(Object objKey) {
+        return positiveMod (objKey.hashCode(), tablesize);
+    }
+
+    private int hashFunc2(Object objKey) {
+        return 1 + positiveMod (objKey.hashCode(), tablesize - 2);
+    }
+
     @Override
-    public void insert() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'insert'");
+    public void insert(Object newKey) {
+        
     }
 
     @Override

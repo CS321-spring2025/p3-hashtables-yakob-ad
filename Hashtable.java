@@ -25,9 +25,9 @@ abstract class Hashtable {
         for (int i = 0; i < tablesize; i++) table[i] = null;
     }
 
-    public abstract void insert(Object newKey);
+    public abstract int insert(Object newKey);
 
-    public abstract void search();
+    public abstract int search();
 
     /**
      * <p>Ensures that a modulus operation always returns a positive integer.

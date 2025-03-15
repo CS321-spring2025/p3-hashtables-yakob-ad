@@ -67,9 +67,18 @@ public class DoubleHashing extends Hashtable{
     }
 
     @Override
-    public int search() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'search'");
+    public HashObject search(Object keyToFind) {
+        int probe;
+        int i = 0;
+        do {
+            probe = probeSequence(keyToFind, i); // get probe sequence to find location of key
+            if (table[probe].equals(keyToFind)) { // check if HashObject key at probe location matches parameter key
+                return table[probe]; // return HashObject if keys match
+            }
+            i++;
+        } while(table[probe] != null && i < tablesize); // encountering null at probe location means HashObject key was never inserted
+
+        return null;
     }
 
 }

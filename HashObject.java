@@ -13,11 +13,18 @@ public class HashObject {
     private Object key;
     private int frequencyCount;
     private int probeCount;
+    private StringBuilder outputString;
 
+    /**
+     * Overloaded constructor for {@code HashObject}
+     * 
+     * @param key reference to an object of any class
+     */
     public HashObject(Object key) {
         this.key = key;
         this.frequencyCount = 1;
         this.probeCount = 0;
+        this.outputString = new StringBuilder();
     }
     
     /**

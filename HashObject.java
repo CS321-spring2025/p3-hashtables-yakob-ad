@@ -10,10 +10,10 @@
  */
 public class HashObject {
 
-    private Object key;
-    private int frequencyCount;
-    private int probeCount;
-    private StringBuilder outputString;
+    private Object key; // key field
+    private int frequencyCount; // counts the frequency at which the same HashObject is detected during an insert operation
+    private int probeCount; // counts the number of times the HashObject is probed/located in a hash
+    private int storedIndex; // tracks the specific index where the object is stored in a hash table
 
     /**
      * Overloaded constructor for {@code HashObject}
@@ -24,7 +24,7 @@ public class HashObject {
         this.key = key;
         this.frequencyCount = 1;
         this.probeCount = 0;
-        this.outputString = new StringBuilder();
+        this.storedIndex = -1;
     }
     
     /**
@@ -34,6 +34,25 @@ public class HashObject {
      */
     public Object getKey() {
         return key;
+    }
+
+    /**
+     * Sets the storedIndex variable that keeps track of HashObject's probe location
+     * 
+     * @param storedIndex hash table index where HashObject is stored
+     */
+    public void setStoredIndex(int storedIndex) {
+        this.storedIndex = storedIndex;
+    }
+
+    /**
+     * Gets the storedIndex variable that keeps track of HashObject's probe location
+     * 
+     * @return hash table index where HashObject is stored; -1 by default if storedIndex was never set/changed
+     */
+    public int getStoredIndex() {
+        return storedIndex;
+
     }
 
     /**
@@ -69,22 +88,26 @@ public class HashObject {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(Object hashObject) {
         // do they both have the same references?
-        if (this == object) {
+        if (this == hashObject) {
             return true;
         }
 
-        // is the parameter a null pointer reference or doesn't have the same object type as the key
-        if (object == null || this.getClass() != object.getClass()) {
+        // is the parameter a null pointer reference? Does it have the same object type as this class instance
+        if (hashObject == null || this.getClass() != hashObject.getClass()) {
             return false;
         }
 
-        return this.key.equals(object);
+        HashObject otherHashObj = (HashObject) hashObject;
+
+        return this.key.equals(otherHashObj.getKey());
     }
 
     @Override
     public String toString() {
-        return new String();
+        StringBuilder sb = new StringBuilder();
+        sb.append("table[").append(storedIndex).append("]: ").append(key).append(" ").append(frequencyCount).append(" ").append(probeCount);
+        return sb.toString();
     }
 }

@@ -48,18 +48,34 @@ public class DoubleHashing extends Hashtable{
     }
 
     @Override
-    public int insert(Object newKey) {
-        int probe;
-        int i = 0;
-        HashObject newHashObject = new HashObject(newKey);
-        while (i < tablesize) {
-            probe = probeSequence(newKey, i);
-            if (table[probe] == null) {
-                table[probe] = newHashObject;
-                return probe;
-            }
-            else {
-                i++;
+    public int insert(HashObject newHashObject) {
+        totalNumOperations++; // counting the insert operation
+
+        if ((n + 1) <= maxAllowedEntries) { // Check if adding another element exceeds the hash table's maximum capacity
+            int probe;
+            int i = 0;
+
+            probe = newHashObject.getKey().hashCode(); // initial slot check calculates probe value with hashCode()
+            while (i < tablesize) {
+                table[probe].incrementProbeCount();
+                totalProbeCount++;
+
+                if (table[probe] == null) {
+                    n++;
+                    table[probe] = newHashObject;
+                    table[probe].setStoredIndex(probe); // store the probe index to remember the location in the hash table
+                    return probe;
+                }
+                else {
+                    /* Comparing the HashObject in the occupied table slot with the HashObject 
+                     * being inserted to determine if they are duplicates. */
+                    if (table[probe].equals(newHashObject)) {
+                        table[probe].incrementFrequencyCount(); // increment the stored HashObject's frequency count
+                        break; // Breaking out of loop because no inserts should occur if a duplicate object is detected
+                    }
+                    i++;
+                }
+                probe = probeSequence(newHashObject.getKey(), i); // successive slot checks use probe sequence to probe the table
             }
         }
 
@@ -67,15 +83,22 @@ public class DoubleHashing extends Hashtable{
     }
 
     @Override
-    public HashObject search(Object keyToFind) {
+    public HashObject search(HashObject hashObjToFind) {
+        totalNumOperations++; // counting the search operation
+
         int probe;
         int i = 0;
+
+        probe = hashObjToFind.getKey().hashCode(); // initial slot check calculates probe value with hashCode()
         do {
-            probe = probeSequence(keyToFind, i); // get probe sequence to find location of key
-            if (table[probe].equals(keyToFind)) { // check if HashObject key at probe location matches parameter key
+            table[probe].incrementProbeCount();
+            totalProbeCount++;
+
+            if (table[probe].equals(hashObjToFind)) { // check if HashObject at probe location matches HashObject of the provided parameter key
                 return table[probe]; // return HashObject if keys match
             }
             i++;
+            probe = probeSequence(hashObjToFind.getKey(), i); // successive slot checks use probe sequence to find location of key
         } while(table[probe] != null && i < tablesize); // encountering null at probe location means HashObject key was never inserted
 
         return null;

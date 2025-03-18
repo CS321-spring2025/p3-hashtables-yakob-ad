@@ -123,12 +123,6 @@ public class HashtableExperiment {
                         System.out.println(usage);
                         return; // Exit main method
                 }
-
-
-                System.out.printf("HashtableExperiment: Found a twin prime for table capacity: %d\n" +
-                                "HashtableExperiment: Input: Word-List Loadfactor: %.2f\n\n", 
-                                m, loadFactor);
-
                 
 
                 /**
@@ -141,6 +135,10 @@ public class HashtableExperiment {
                         //Prints summary of experiment to the console containing input source type, total number 
                         // of keys inserted into the hash table, and the average number of probes.
                         case 0:
+                            System.out.printf("HashtableExperiment: Found a twin prime for table capacity: %d\n" +
+                            "HashtableExperiment: Input: Word-List Loadfactor: %.2f\n\n", 
+                            m, loadFactor);
+
                             printSummary(m, loadFactor, "Linear Probing", 
                                     linearProbingTable.getTotalNumInsertOperations(), 
                                     linearProbingTable.getTotalNumDuplicatesDetected(), 
@@ -157,6 +155,10 @@ public class HashtableExperiment {
                         // hash tables with number of duplicates and number of probes into two files named
                         // linear-dump.txt and double-dump.txt. 
                         case 1:
+                            System.out.printf("HashtableExperiment: Found a twin prime for table capacity: %d\n" +
+                            "HashtableExperiment: Input: Word-List Loadfactor: %.2f\n\n", 
+                            m, loadFactor);
+
                             printSummary(m, loadFactor, "Linear Probing", 
                                     linearProbingTable.getTotalNumInsertOperations(), 
                                     linearProbingTable.getTotalNumDuplicatesDetected(), 
@@ -181,8 +183,12 @@ public class HashtableExperiment {
                         // Prints element by element to the console with detailed output showing if the insert was
                         // successful or a duplicate.
                         case 2:
+                            System.out.printf("HashtableExperiment: Found a twin prime for table capacity: %d\n" +
+                            "HashtableExperiment: Input: Word-List Loadfactor: %.2f\n", 
+                            m, loadFactor);
+
                             try {
-                                System.out.println("...");
+                                System.out.println("...\n");
                                 PrintWriter pw = new PrintWriter("debug-level-2-output.txt");
                                 StringBuilder sb = new StringBuilder();
                                 pw.println(String.format("%-40s%-50s%-50s", "No.", "Linear Probing", "Double Hashing"));

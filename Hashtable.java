@@ -13,12 +13,13 @@ import java.io.PrintWriter;
 abstract class Hashtable {
 
     protected HashObject[] table; // table to store the hash objects
-    protected int n; // number of HashObject objects stored in the hash table
+    protected int n; // number of unique HashObject objects stored in the hash table
     protected int tablesize; // total number of slots in the table
     protected int maxAllowedEntries; // maximum limit for hash table entries based on the load factor and tablesize
     protected double loadFactor; // load factor = n / tablesize
     protected int totalProbeCount; // sum of all the probes made during all insert and search operations 
-    protected int totalNumOperations; // total number of hash table insert() and search() operations performed
+    protected int totalNumInsertOperations; // total number of hash table insert() operations performed
+    protected int totalNumDuplicatesDetected; // total number of times a duplicate HashObject is detected during insert()
 
     /**
      * Constructor for {@code Hashtable} that initializes the fields storing values for the 
@@ -35,7 +36,8 @@ abstract class Hashtable {
         this.maxAllowedEntries = (int) Math.ceil(tablesize * loadFactor);
         this.n = 0;
         this.totalProbeCount = 0;
-        this.totalNumOperations = 0;
+        this.totalNumInsertOperations = 0;
+        this.totalNumDuplicatesDetected = 0;
 
         // initialize array with tablesize and populate it with null pointers
         table = new HashObject[tablesize];
@@ -85,14 +87,31 @@ abstract class Hashtable {
     }
 
     /**
-     * Determines the average number of probes by dividing the total number of probe executions 
-     * (for both insert and search operations) by the total number of insert and search 
-     * operations performed. 
+     * Get the total number of insert operations performed on the hash table
      * 
-     * @return The ratio of the total number of probe executions to the total number of insert and search operations.
+     * @return total number of insert operations
+     */
+    public int getTotalNumInsertOperations() {
+        return totalNumInsertOperations;
+    }
+
+    /**
+     * Get the total number of duplicates detected when inserting elements into the hash table
+     * 
+     * @return total number of duplicates (identical {@code HashObject} objects) detected
+     */
+    public int getTotalNumDuplicatesDetected() {
+        return totalNumDuplicatesDetected;
+    }
+
+    /**
+     * Determines the average number of probes by dividing the total number of probe made during insertion
+     * by the total number of unique insertions made into the hash table
+     * 
+     * @return The ratio of the total number of probes to the number of unique inserts
      */
     public double getAvgNumProbes() {
-        return totalProbeCount / (double) totalNumOperations;
+        return totalProbeCount / (double) n;
     }
 
     /**
@@ -114,6 +133,10 @@ abstract class Hashtable {
         PrintWriter out = new PrintWriter(fileName);
         // loop through the hash table, and print non-null entries
         // using toString() method in the HashObject class
+        for (int i = 0; i < tablesize; i++) {
+            if (table[i] != null) out.println(table[i].toString());
+        }
+        
         out.close();
     }
 

@@ -37,32 +37,35 @@ public class LinearProbing extends Hashtable{
 
     @Override
     public int insert(HashObject newHashObject) {
-        totalNumOperations++; // counting the insert operation
-
         if ((n + 1) <= maxAllowedEntries) { // Check if adding another element exceeds the hash table's maximum capacity
+            totalNumInsertOperations++; // counting the insert operation
+
             int probe;
             int i = 0;
 
-            probe = newHashObject.getKey().hashCode(); // initial slot check calculates probe value with hashCode()
+            probe = hashFunc1(newHashObject.getKey()); // initial slot check calculates probe value with primary hash function
             while (i < tablesize) {
-                table[probe].incrementProbeCount();
+                newHashObject.incrementProbeCount(); // incrementing probe count of element being inserted
                 totalProbeCount++;
-
+                
                 if (table[probe] == null) {
                     n++;
                     table[probe] = newHashObject;
                     table[probe].setStoredIndex(probe); // store the probe index to remember the location in the hash table
                     return probe;
                 }
-                else {
-                    /* Comparing the HashObject in the occupied table slot with the HashObject 
-                     * being inserted to determine if they are duplicates. */
-                    if (table[probe].equals(newHashObject)) {
-                        table[probe].incrementFrequencyCount(); // increment the stored HashObject's frequency count
-                        break; // Breaking out of loop because no inserts should occur if a duplicate object is detected
-                    }
-                    i++;
+                else if (table[probe].equals(newHashObject)){
+                    /* Compared the HashObject in the occupied table slot with the HashObject 
+                     * being inserted and determined that they are duplicates. */
+                    totalNumDuplicatesDetected++;
+                    table[probe].incrementFrequencyCount(); // increment the stored HashObject's frequency count
+
+                    // Exclude all probe attempts made to detect the duplicate
+                    totalProbeCount -= newHashObject.getProbeCount();
+
+                    return -1; // Exiting function because no inserts should occur if a duplicate object is detected
                 }
+                i++;
                 probe = probeSequence(newHashObject.getKey(), i); // successive slot checks use probe sequence to probe the table
             }
         }
@@ -72,16 +75,11 @@ public class LinearProbing extends Hashtable{
 
     @Override
     public HashObject search(HashObject hashObjToFind) {
-        totalNumOperations++; // counting the search operation
-
         int probe;
         int i = 0;
 
         probe = hashObjToFind.getKey().hashCode(); // initial slot check calculates probe value with hashCode()
         do {
-            table[probe].incrementProbeCount();
-            totalProbeCount++;
-
             if (table[probe].equals(hashObjToFind)) { // check if HashObject at probe location matches HashObject of the provided parameter key
                 return table[probe]; // return HashObject if keys match
             }

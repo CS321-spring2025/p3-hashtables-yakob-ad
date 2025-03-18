@@ -1,8 +1,4 @@
-import java.util.Random;
-
 public class TwinPrimeGenerator {
-
-    private Random rand;
 
     /**
      * Confirms whether the given number is a prime number
@@ -20,10 +16,6 @@ public class TwinPrimeGenerator {
             }
         }
         return true;
-    }
-
-    public TwinPrimeGenerator(long seed) {
-        rand = new Random(seed);
     }
 
     /**

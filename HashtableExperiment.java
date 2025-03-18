@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
@@ -6,8 +7,22 @@ import java.util.Random;
 
 public class HashtableExperiment {
 
-    public static void printSummary() {
-        
+    /**
+     * Prints basic summary of a hash table in the HashExperiment
+     * 
+     * @param m size of the hash table represented as a twin prime number
+     * @param loadFactor load factor provided for the hash table
+     * @param hashTableType the type of the hash table; technically defined by its addressing technique (Linear Probing, Double Hashing, etc.)
+     * @param numInsertedElements number of insert attempts on the hash table
+     * @param numDuplicates number of insert attempts where duplicate HashObject was detected
+     * @param avgNumProbes average number of probes performed all throughout
+     */
+    public static void printSummary(int m, double loadFactor, String hashTableType, int numInsertedElements, int numDuplicates, double avgNumProbes) {
+        System.out.printf("        Using %s\n" +
+                          "HashtableExperiment: size of hash table is %d\n" + 
+                          "        Inserted %d elements, of which %d were duplicates\n" +
+                          "        Avg. no. of probes = %.2f\n", 
+                          hashTableType, (int) Math.ceil(m * loadFactor), numInsertedElements, numDuplicates, avgNumProbes);
     }
     
     public static void main(String[] args) {
@@ -47,6 +62,7 @@ public class HashtableExperiment {
                 Random rand = new Random();
                 Hashtable linearProbingTable;
                 Hashtable doubleHashingTable;
+                
                 switch (dataSource) {
                     case 1:
                         // Data Source 1 <Integer>: Each HashObject contains an Integer object with a
@@ -56,9 +72,8 @@ public class HashtableExperiment {
                         doubleHashingTable = new DoubleHashing(m, loadFactor);
 
                         for (int i = 0; i < maxAllowedEntries; i++) {
-                            HashObject newHashObject = new HashObject(rand.nextInt());
-                            linearProbingTable.insert(newHashObject);
-                            doubleHashingTable.insert(newHashObject);
+                            linearProbingTable.insert(new HashObject(rand.nextInt()));
+                            doubleHashingTable.insert(new HashObject(rand.nextInt()));
                         }
                         break;
                     case 2:
@@ -71,9 +86,8 @@ public class HashtableExperiment {
                         for (int i = 0; i < maxAllowedEntries; i++) {
                             current += 1000; //increase by 1 second (1000 ms)
                             Date date = new Date(current);
-                            HashObject newHashObject = new HashObject(date);
-                            linearProbingTable.insert(newHashObject);
-                            doubleHashingTable.insert(newHashObject);
+                            linearProbingTable.insert(new HashObject(date));
+                            doubleHashingTable.insert(new HashObject(date));
                         }
                         break;
                     case 3:
@@ -87,9 +101,8 @@ public class HashtableExperiment {
                             BufferedReader reader = new BufferedReader(new FileReader("word-list.txt"));
                             String line;
                             while ((line = reader.readLine()) != null) {
-                                HashObject newHashObject = new HashObject(line);
-                                linearProbingTable.insert(newHashObject);
-                                doubleHashingTable.insert(newHashObject);
+                                linearProbingTable.insert(new HashObject(line));
+                                doubleHashingTable.insert(new HashObject(line));
                             }
                             reader.close();
                         } catch (IOException e) {
@@ -110,16 +123,51 @@ public class HashtableExperiment {
 
                 
 
-                
+                /**
+                 * Output hash table results based on debug level
+                 */
                 if (args.length == 3) {
                     // <debug-level=0,1,2>: Level of debug to output
                     int debugLevel = Integer.parseInt(args[2]);
                     switch(debugLevel) {
+                        //Prints summary of experiment to the console containing input source type, total number 
+                        // of keys inserted into the hash table, and the average number of probes.
                         case 0:
-                            // Do something
+                            printSummary(m, loadFactor, "Linear Probing", 
+                                    linearProbingTable.getTotalNumInsertOperations(), 
+                                    linearProbingTable.getTotalNumDuplicatesDetected(), 
+                                    linearProbingTable.getAvgNumProbes());
+                            System.out.println();
+
+                            printSummary(m, loadFactor, "Double Hashing", 
+                                    doubleHashingTable.getTotalNumInsertOperations(), 
+                                    doubleHashingTable.getTotalNumDuplicatesDetected(), 
+                                    doubleHashingTable.getAvgNumProbes());
                             break;
+
+                        // Prints summary of experiment to the console similar to debug level 0 but also saves the
+                        // hash tables with number of duplicates and number of probes into two files named
+                        // linear-dump.txt and double-dump.txt. 
                         case 1:
-                            // Do something
+                            printSummary(m, loadFactor, "Linear Probing", 
+                                    linearProbingTable.getTotalNumInsertOperations(), 
+                                    linearProbingTable.getTotalNumDuplicatesDetected(), 
+                                    linearProbingTable.getAvgNumProbes());
+                            System.out.println("HashtableExperiment: Saved dump of hash table\n");
+
+                            printSummary(m, loadFactor, "Double Hashing", 
+                                    doubleHashingTable.getTotalNumInsertOperations(), 
+                                    doubleHashingTable.getTotalNumDuplicatesDetected(), 
+                                    doubleHashingTable.getAvgNumProbes());
+                            System.out.println("HashtableExperiment: Saved dump of hash table");
+
+                            try{
+                                linearProbingTable.dumpToFile("word-list" + "-" + loadFactor + "-linear-dump.txt");
+                                doubleHashingTable.dumpToFile("word-list" + "-" + loadFactor + "-double-dump.txt");
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                                return; // Exit main method
+                            }
                             break;
                         case 2:
                             // Do something
@@ -130,6 +178,20 @@ public class HashtableExperiment {
                             return; // Exit main method
                     }
                 }
+                else {
+                    printSummary(m, loadFactor, "Linear Probing", 
+                            linearProbingTable.getTotalNumInsertOperations(), 
+                            linearProbingTable.getTotalNumDuplicatesDetected(), 
+                            linearProbingTable.getAvgNumProbes());
+                    System.out.println();
+
+                    printSummary(m, loadFactor, "Double Hashing", 
+                            doubleHashingTable.getTotalNumInsertOperations(), 
+                            doubleHashingTable.getTotalNumDuplicatesDetected(), 
+                            doubleHashingTable.getAvgNumProbes());
+                }
+
+
             } catch (NumberFormatException e) {
                 System.out.println("Incorrect Format: Please use the correct data types for the arguments.");
                 System.out.println(usage);

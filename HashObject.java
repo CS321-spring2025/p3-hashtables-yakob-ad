@@ -37,7 +37,7 @@ public class HashObject {
     }
 
     /**
-     * Sets the storedIndex variable that keeps track of HashObject's probe location
+     * Sets the storedIndex variable that keeps track of {@code HashObject}'s probe location in the hash table
      * 
      * @param storedIndex hash table index where HashObject is stored
      */
@@ -46,7 +46,7 @@ public class HashObject {
     }
 
     /**
-     * Gets the storedIndex variable that keeps track of HashObject's probe location
+     * Gets the storedIndex variable that keeps track of {@code HashObject}'s probe location in the hash table
      * 
      * @return hash table index where HashObject is stored; -1 by default if storedIndex was never set/changed
      */

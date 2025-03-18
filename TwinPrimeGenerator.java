@@ -1,3 +1,6 @@
+/**
+ * Implements functions for generating twin primes that fall within a range.
+ */
 public class TwinPrimeGenerator {
 
     /**

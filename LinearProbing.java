@@ -7,6 +7,12 @@
  */
 public class LinearProbing extends Hashtable{
 
+    /**
+     * Overloaded constructor for Linear Probing
+     * 
+     * @param tablesize size of the hash table array
+     * @param loadFactor ratio of the maximum number of allowed table entries to the size of the hash table (tablesize)
+     */
     public LinearProbing(int tablesize, double loadFactor) {
         super(tablesize, loadFactor);
     }
@@ -78,14 +84,14 @@ public class LinearProbing extends Hashtable{
         int probe;
         int i = 0;
 
-        probe = hashFunc1(keyToFind); // initial slot check calculates probe value with hashCode()
-        do {
+        probe = hashFunc1(keyToFind); // initial slot check calculates probe value with hashFunc1()
+        while(table[probe] != null && i < tablesize) { // encountering null at probe location means HashObject key was never inserted
             if (table[probe].equals(keyToFind)) { // check if HashObject at probe location matches HashObject of the provided parameter key
                 return table[probe]; // return HashObject if keys match
             }
             i++;
             probe = probeSequence(keyToFind, i); // successive slot checks use probe sequence to find location of key
-        } while(table[probe] != null && i < tablesize); // encountering null at probe location means HashObject key was never inserted
+        }
 
         return null;
     }

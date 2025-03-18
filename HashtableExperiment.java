@@ -7,6 +7,10 @@ import java.util.Date;
 import java.util.Random;
 import java.util.Arrays;
 
+/**
+ * The driver program that should have three (the third one is optional) command-line arguments.
+ * Utilizes the linear probing and double hashing hash table implementations on three different data sources
+ */
 public class HashtableExperiment {
     
     public static void main(String[] args) {
@@ -42,7 +46,6 @@ public class HashtableExperiment {
                 
                 // Twin prime m between 95500 and 96000
                 int m = TwinPrimeGenerator.generateTwinPrime(95500, 96000);
-                int maxAllowedEntries = (int) Math.ceil(m * loadFactor);
                 Random rand = new Random();
                 Hashtable linearProbingTable;
                 Hashtable doubleHashingTable;
@@ -64,7 +67,7 @@ public class HashtableExperiment {
                         linearProbingTable = new LinearProbing(m, loadFactor);
                         doubleHashingTable = new DoubleHashing(m, loadFactor);
 
-                        for (int i = 0; i < maxAllowedEntries; i++) {
+                        for (int i = 0; i < m; i++) {
                             Integer randInt = rand.nextInt();
                             linearProbInsertOut[countInsertionIterations] = linearProbingTable.insert(new HashObject(randInt));
                             doubleHashInsertOut[countInsertionIterations] = doubleHashingTable.insert(new HashObject(randInt));
@@ -79,7 +82,7 @@ public class HashtableExperiment {
                         doubleHashingTable = new DoubleHashing(m, loadFactor);
                         long current =  new Date().getTime();
 
-                        for (int i = 0; i < maxAllowedEntries; i++) {
+                        for (int i = 0; i < m; i++) {
                             current += 1000; //increase by 1 second (1000 ms)
                             Date date = new Date(current);
                             linearProbInsertOut[countInsertionIterations] = linearProbingTable.insert(new HashObject(date));
@@ -167,8 +170,8 @@ public class HashtableExperiment {
                             System.out.println("HashtableExperiment: Saved dump of hash table");
 
                             try{
-                                linearProbingTable.dumpToFile("word-list" + "-" + loadFactor + "-linear-dump.txt");
-                                doubleHashingTable.dumpToFile("word-list" + "-" + loadFactor + "-double-dump.txt");
+                                linearProbingTable.dumpToFile("linear-dump.txt");
+                                doubleHashingTable.dumpToFile("double-dump.txt");
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                                 return; // Exit main method
@@ -207,11 +210,9 @@ public class HashtableExperiment {
                                     // Format column for each row
                                     sb.setLength(0);
                                     sb.append(firstColumn).append(secondColumn).append(thirdColumn);
-                                    // sb.append(System.lineSeparator());
 
                                     // Write each row into a text file for debugging
                                     pw.println(sb.toString());
-                                    // System.out.print(sb.toString());
                                 }
                                 pw.close();
                                 System.out.println("Debug-Level 2 File Write Complete!");

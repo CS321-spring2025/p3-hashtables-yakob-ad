@@ -54,7 +54,7 @@ public class LinearProbing extends Hashtable{
                     table[probe].setStoredIndex(probe); // store the probe index to remember the location in the hash table
                     return probe;
                 }
-                else if (table[probe].equals(newHashObject)){
+                else if (table[probe].equals(newHashObject.getKey())){
                     /* Compared the HashObject in the occupied table slot with the HashObject 
                      * being inserted and determined that they are duplicates. */
                     totalNumDuplicatesDetected++;
@@ -70,21 +70,21 @@ public class LinearProbing extends Hashtable{
             }
         }
 
-        return -1;
+        return -2;
     }
 
     @Override
-    public HashObject search(HashObject hashObjToFind) {
+    public HashObject search(Object keyToFind) {
         int probe;
         int i = 0;
 
-        probe = hashObjToFind.getKey().hashCode(); // initial slot check calculates probe value with hashCode()
+        probe = hashFunc1(keyToFind); // initial slot check calculates probe value with hashCode()
         do {
-            if (table[probe].equals(hashObjToFind)) { // check if HashObject at probe location matches HashObject of the provided parameter key
+            if (table[probe].equals(keyToFind)) { // check if HashObject at probe location matches HashObject of the provided parameter key
                 return table[probe]; // return HashObject if keys match
             }
             i++;
-            probe = probeSequence(hashObjToFind.getKey(), i); // successive slot checks use probe sequence to find location of key
+            probe = probeSequence(keyToFind, i); // successive slot checks use probe sequence to find location of key
         } while(table[probe] != null && i < tablesize); // encountering null at probe location means HashObject key was never inserted
 
         return null;

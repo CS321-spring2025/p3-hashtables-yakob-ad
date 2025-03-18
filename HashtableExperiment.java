@@ -2,28 +2,12 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Random;
+import java.util.Arrays;
 
 public class HashtableExperiment {
-
-    /**
-     * Prints basic summary of a hash table in the HashExperiment
-     * 
-     * @param m size of the hash table represented as a twin prime number
-     * @param loadFactor load factor provided for the hash table
-     * @param hashTableType the type of the hash table; technically defined by its addressing technique (Linear Probing, Double Hashing, etc.)
-     * @param numInsertedElements number of insert attempts on the hash table
-     * @param numDuplicates number of insert attempts where duplicate HashObject was detected
-     * @param avgNumProbes average number of probes performed all throughout
-     */
-    public static void printSummary(int m, double loadFactor, String hashTableType, int numInsertedElements, int numDuplicates, double avgNumProbes) {
-        System.out.printf("        Using %s\n" +
-                          "HashtableExperiment: size of hash table is %d\n" + 
-                          "        Inserted %d elements, of which %d were duplicates\n" +
-                          "        Avg. no. of probes = %.2f\n", 
-                          hashTableType, (int) Math.ceil(m * loadFactor), numInsertedElements, numDuplicates, avgNumProbes);
-    }
     
     public static void main(String[] args) {
         // Usage string
@@ -62,6 +46,15 @@ public class HashtableExperiment {
                 Random rand = new Random();
                 Hashtable linearProbingTable;
                 Hashtable doubleHashingTable;
+
+                int[] linearProbInsertOut = new int[m]; // will store the output values of LinearProbing insert() method (for debugLevel = 2)
+                int[] doubleHashInsertOut = new int[m]; // will store the output values of DoubleHashing insert() method (for debugLevel = 2)
+                Object[] objectFieldStorage = new Object[m]; // stores the Object key field of each HashObject (for debugLevel = 2)
+
+                /** Counts each iteration where new HashObject objects are inserted into LinearProbing and DoubleHashing tables
+                 *  in the switch statement code block below
+                 */
+                int countInsertionIterations = 0; 
                 
                 switch (dataSource) {
                     case 1:
@@ -72,8 +65,11 @@ public class HashtableExperiment {
                         doubleHashingTable = new DoubleHashing(m, loadFactor);
 
                         for (int i = 0; i < maxAllowedEntries; i++) {
-                            linearProbingTable.insert(new HashObject(rand.nextInt()));
-                            doubleHashingTable.insert(new HashObject(rand.nextInt()));
+                            Integer randInt = rand.nextInt();
+                            linearProbInsertOut[countInsertionIterations] = linearProbingTable.insert(new HashObject(randInt));
+                            doubleHashInsertOut[countInsertionIterations] = doubleHashingTable.insert(new HashObject(randInt));
+                            objectFieldStorage[countInsertionIterations] = randInt;
+                            countInsertionIterations++;
                         }
                         break;
                     case 2:
@@ -86,8 +82,10 @@ public class HashtableExperiment {
                         for (int i = 0; i < maxAllowedEntries; i++) {
                             current += 1000; //increase by 1 second (1000 ms)
                             Date date = new Date(current);
-                            linearProbingTable.insert(new HashObject(date));
-                            doubleHashingTable.insert(new HashObject(date));
+                            linearProbInsertOut[countInsertionIterations] = linearProbingTable.insert(new HashObject(date));
+                            doubleHashInsertOut[countInsertionIterations] = doubleHashingTable.insert(new HashObject(date));
+                            objectFieldStorage[countInsertionIterations] = date;
+                            countInsertionIterations++;
                         }
                         break;
                     case 3:
@@ -101,8 +99,15 @@ public class HashtableExperiment {
                             BufferedReader reader = new BufferedReader(new FileReader("word-list.txt"));
                             String line;
                             while ((line = reader.readLine()) != null) {
-                                linearProbingTable.insert(new HashObject(line));
-                                doubleHashingTable.insert(new HashObject(line));
+                                if (countInsertionIterations >= linearProbInsertOut.length || countInsertionIterations >= doubleHashInsertOut.length) {
+                                    linearProbInsertOut = Arrays.copyOf(linearProbInsertOut, linearProbInsertOut.length * 2);
+                                    doubleHashInsertOut = Arrays.copyOf(doubleHashInsertOut, doubleHashInsertOut.length * 2);
+                                    objectFieldStorage = Arrays.copyOf(objectFieldStorage, objectFieldStorage.length * 2);
+                                }
+                                linearProbInsertOut[countInsertionIterations] = linearProbingTable.insert(new HashObject(line));
+                                doubleHashInsertOut[countInsertionIterations] = doubleHashingTable.insert(new HashObject(line));
+                                objectFieldStorage[countInsertionIterations] = line;
+                                countInsertionIterations++;
                             }
                             reader.close();
                         } catch (IOException e) {
@@ -169,8 +174,51 @@ public class HashtableExperiment {
                                 return; // Exit main method
                             }
                             break;
+                        
+                        // Prints element by element to the console with detailed output showing if the insert was
+                        // successful or a duplicate.
                         case 2:
-                            // Do something
+                            try {
+                                System.out.println("...");
+                                PrintWriter pw = new PrintWriter("debug-level-2-output.txt");
+                                StringBuilder sb = new StringBuilder();
+                                pw.println(String.format("%-40s%-50s%-50s", "No.", "Linear Probing", "Double Hashing"));
+                                pw.println(String.format("%-40s%-50s%-50s", "------------------------------", 
+                                                                        "----------------------------------------", 
+                                                                        "----------------------------------------"));
+                                for (int i = 0; i < countInsertionIterations; i++) {
+                                    sb.setLength(0);
+                                    String firstColumn = formatColumn(sb, sb.append("Insert #").append(i + 1).append(" --> ").append(objectFieldStorage[i]).toString(), 40);
+
+                                    sb.setLength(0);
+                                    String secondColumn;
+                                    if (linearProbInsertOut[i] == -1) {secondColumn = "Insertion Terminated - Duplicate Detected";}
+                                    else if (linearProbInsertOut[i] == -2) {secondColumn = "Insertion Failed - Table Reached Capacity";}
+                                    else {secondColumn = sb.append("Insertion Successful after ").append(linearProbingTable.search(objectFieldStorage[i]).getProbeCount()).append(" probe(s)").toString();}
+                                    secondColumn = formatColumn(sb, secondColumn, 50);
+                                    
+                                    sb.setLength(0);
+                                    String thirdColumn;
+                                    if (doubleHashInsertOut[i] == -1) {thirdColumn = "Insertion Terminated - Duplicate Detected";}
+                                    else if (doubleHashInsertOut[i] == -2) {thirdColumn = "Insertion Failed - Table Reached Capacity";}
+                                    else {thirdColumn = sb.append("Insertion Successful after ").append(doubleHashingTable.search(objectFieldStorage[i]).getProbeCount()).append(" probe(s)").toString();}
+                                    thirdColumn = formatColumn(sb, thirdColumn, 50);
+
+                                    // Format column for each row
+                                    sb.setLength(0);
+                                    sb.append(firstColumn).append(secondColumn).append(thirdColumn);
+                                    // sb.append(System.lineSeparator());
+
+                                    // Write each row into a text file for debugging
+                                    pw.println(sb.toString());
+                                    // System.out.print(sb.toString());
+                                }
+                                pw.close();
+                                System.out.println("Debug-Level 2 File Write Complete!");
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                                return; // Exit main method
+                            }
                             break;      
                         default: // If debug-level isn't 0,1, or 2, then by default, command-line usage is printed.
                             System.out.println("Debug Level should be 0, 1, or 2");
@@ -202,11 +250,44 @@ public class HashtableExperiment {
             System.out.println(usage);
         }
 
-        // System.out.println(usage);
-
-        // System.out.println("\nPrime number m where m and (m - 2) are both prime:\nm = " + TwinPrimeGenerator.generateTwinPrime(95500, 96000));
-        // System.out.println("is m = 95791 prime: " + TwinPrimeGenerator.isPrime(95791));
-        // System.out.println("is m - 2 = 95789 prime: " + TwinPrimeGenerator.isPrime(95791 - 2));
-
     }
+
+
+    /**
+     * Prints basic summary of a hash table in the HashExperiment
+     * 
+     * @param m size of the hash table represented as a twin prime number
+     * @param loadFactor load factor provided for the hash table
+     * @param hashTableType the type of the hash table; technically defined by its addressing technique (Linear Probing, Double Hashing, etc.)
+     * @param numInsertedElements number of insert attempts on the hash table
+     * @param numDuplicates number of insert attempts where duplicate HashObject was detected
+     * @param avgNumProbes average number of probes performed all throughout
+     */
+    public static void printSummary(int m, double loadFactor, String hashTableType, int numInsertedElements, int numDuplicates, double avgNumProbes) {
+        System.out.printf("        Using %s\n" +
+                          "HashtableExperiment: size of hash table is %d\n" + 
+                          "        Inserted %d elements, of which %d were duplicates\n" +
+                          "        Avg. no. of probes = %.2f\n", 
+                          hashTableType, (int) Math.ceil(m * loadFactor), numInsertedElements, numDuplicates, avgNumProbes);
+    }
+
+    /**
+     * Helper method to format columns to a fixed width
+     * 
+     * @param sb {@code StringBuilder} object to be reused
+     * @param content string content to modify
+     * @param width fixed maximum width
+     * @return formatted content string
+     */
+    public static String formatColumn(StringBuilder sb, String content, int width) {
+        sb.setLength(0);
+        if (content.length() < width) {
+            // Pad with spaces to the right
+            return sb.append(content).append(" ".repeat(width - content.length())).toString();
+        } else {
+            // Truncate if the content exceeds the width
+            return sb.append(content.substring(0, width - 4)).append("... ").toString();
+        }
+    }
+
 }

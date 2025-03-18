@@ -51,22 +51,23 @@ abstract class Hashtable {
      * probing sequence until it finds an empty slot.
      * 
      * @param newHashObject {@code HashOject} to be inserted
-     * @return the probe value if empty slot is found and insertion is successful; -1, otherwise, if the 
-     *         insertion fails due to a duplicate HashObject being detected or the hash table exceeding its 
-     *         maximum (load factor) storage capacity
+     * @return the probe value if empty slot is found and insertion is successful; 
+     *         -1 if the insertion doesn't occur due to a duplicate HashObject being detected;
+     *         -2 if the insertion fails due to the hash table exceeding its maximum (load factor) storage capacity
+     *              or if the whole table is probed without finding a location to insert the element
      */
     public abstract int insert(HashObject newHashObject);
 
     /** 
-     * Searches the hash table by hashing the key of {@code HashObject hashObjToFind} and comparing array element 
-     * and parameter HashObject using {@code equals()}. If objects don't match, a subclass-defined probing sequence function 
-     * generates multiple successive slots to probe until either a {@code HashObject} array element with the matching 
-     * {@code Object} key is found, or the entire table is probed without finding a match.
+     * Searches the hash table by hashing the key {@code Object keyToFind} using a subclass-defined 
+     * probing sequence function. This function generates multiple successive slots to probe until 
+     * either the {@code HashObject} array element with the matching {@code Object} key is found, 
+     * or the entire table is probed without finding a match.
      * 
-     * @param hashObjToFind {@code HashObject} to search for
-     * @return {@code HashObject} with the matching element in the table, or {@code null} if no match is found.
+     * @param keyToFind {@code Object} key value to search for
+     * @return {@code HashObject} with the matching key in the table, or {@code null} if no match is found.
      */
-    public abstract HashObject search(HashObject hashObjToFind);
+    public abstract HashObject search(Object keyToFind);
 
     /**
      * <p>Ensures that a modulus operation always returns a positive integer.

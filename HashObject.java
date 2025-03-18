@@ -88,20 +88,18 @@ public class HashObject {
     }
 
     @Override
-    public boolean equals(Object hashObject) {
+    public boolean equals(Object objKey) {
         // do they both have the same references?
-        if (this == hashObject) {
+        if (this.key == objKey) {
             return true;
         }
 
-        // is the parameter a null pointer reference? Does it have the same object type as this class instance
-        if (hashObject == null || this.getClass() != hashObject.getClass()) {
+        // is the parameter a null pointer reference? Does it have the same object type as the key for this class instance
+        if (objKey == null || this.key.getClass() != objKey.getClass()) {
             return false;
         }
 
-        HashObject otherHashObj = (HashObject) hashObject;
-
-        return this.key.equals(otherHashObj.getKey());
+        return this.key.equals(objKey);
     }
 
     @Override
